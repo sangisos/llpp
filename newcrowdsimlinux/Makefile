@@ -67,6 +67,6 @@ clean:
 	-make -C tests test.clean
 	-rm -f $(DEMOAPP_DIR)/Makefile
 	-rm -f $(DEMOAPP_DIR)/src/Makefile
-	-rm -f $(SYMLINK) $(MACOSLINK) $(MACAPP) libpedsim.so
+	-rm -f $(SYMLINK) $(MACOSLINK) $(MACAPP) $(DEMOAPP) libpedsim.so
 
 .PHONY: $(LIBPEDSIM) $(DEMOAPP)  alltests clean

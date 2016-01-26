@@ -1,5 +1,6 @@
 #include <omp.h>
 #include <iostream>
+#include <cstring>
 
   
 
@@ -8,7 +9,8 @@ int main()
 {
   int target_thread_num = 2;
   omp_set_num_threads(target_thread_num);
-  int check[target_thread_num] = {0};
+  int check[target_thread_num];
+  memset( check, 0, target_thread_num*sizeof(int) );
   
 // Initialize all the times
 #pragma omp parallel

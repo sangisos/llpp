@@ -16,4 +16,4 @@ omp:
 test.clean:
 	rm -f helloWorldCuda
 	rm -f helloWorldOmp
-	rm -f hellowWorldOpencl
+	rm -f helloWorldOpencl
