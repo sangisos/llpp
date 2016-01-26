@@ -35,6 +35,17 @@ void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
 void Ped::Model::tick()
 {
   // EDIT HERE FOR ASSIGNMENT 1
+  std::vector<Ped::Tagent*> tagent = getAgents();
+
+  for(int i = 0; i < tagent.size(); i++){
+    tagent[i]->computeNextDesiredPosition();
+  }
+  
+  for(int i = 0; i < tagent.size(); i++){
+    tagent[i]->setX(tagent[i]->getDesiredX());
+    tagent[i]->setY(tagent[i]->getDesiredY());
+  }
+
 }
 
 ////////////
