@@ -13,6 +13,9 @@
 #include <stack>
 #include <algorithm>
 
+#include "pthread.h"
+#define NTHREADS 4
+
 void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
 {
   agents = std::vector<Ped::Tagent*>(agentsInScenario.begin(), agentsInScenario.end());
@@ -32,20 +35,92 @@ void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
   setupHeatmapSeq();
 }
 
+typedef struct segment_{
+  int start;
+  int end;
+  std::vector<Ped::Tagent*> tagent;
+} segment;
+
+void *computepos(void *ptr){
+  segment *seg = (segment*)ptr;
+  for( int i = seg->start; i < seg->end; i++){
+    seg->tagent[i]->computeNextDesiredPosition();
+  }
+  return NULL;
+}
+void *movepos(void *ptr){
+  segment *seg = (segment*)ptr;
+  for( int i = seg->start; i < seg->end; i++){
+    seg->tagent[i]->setX(seg->tagent[i]->getDesiredX());
+    seg->tagent[i]->setY(seg->tagent[i]->getDesiredY());
+  }
+  return NULL;
+}
+
 void Ped::Model::tick()
 {
   // EDIT HERE FOR ASSIGNMENT 1
+  pthread_t pids[NTHREADS];
+  segment *segs;
   std::vector<Ped::Tagent*> tagent = getAgents();
 
-  for(int i = 0; i < tagent.size(); i++){
-    tagent[i]->computeNextDesiredPosition();
-  }
-  
-  for(int i = 0; i < tagent.size(); i++){
-    tagent[i]->setX(tagent[i]->getDesiredX());
-    tagent[i]->setY(tagent[i]->getDesiredY());
-  }
+  switch(implementation){
+    case OMP:
+    
+      #pragma OMP Parallel
+      for(int i = 0; i < tagent.size(); i++){
+        tagent[i]->computeNextDesiredPosition();
+      }
 
+      #pragma OMP Parallel
+      for(int i = 0; i < tagent.size(); i++){
+        tagent[i]->setX(tagent[i]->getDesiredX());
+        tagent[i]->setY(tagent[i]->getDesiredY());
+      }
+      break;
+
+    case PTHREAD:
+      segs = (segment *) calloc(sizeof(segment), NTHREADS);
+
+      for(int i = 0; i < NTHREADS; i++){
+        segs[i].start=i*tagent.size()/NTHREADS;
+        segs[i].end= ( (i-1) != NTHREADS) ? (i+1)*tagent.size()/NTHREADS : tagent.size();
+        segs[i].tagent = tagent;
+      }
+
+      for(int i = 0; i < tagent.size(); i++){
+        pthread_create( &pids[i], NULL, &computepos, &segs[i]);
+      }
+      
+      for(int i = 0; i < tagent.size(); i++){
+        pthread_join( pids[i], NULL);
+      }
+
+      for(int i = 0; i < tagent.size(); i++){
+        pthread_create( &pids[i], NULL, &movepos, &segs[i]);
+      }
+      
+      for(int i = 0; i < tagent.size(); i++){
+        pthread_join( pids[i], NULL);
+      }
+
+      free(segs);
+      break;
+
+    case SEQ:
+      for(int i = 0; i < tagent.size(); i++){
+        tagent[i]->computeNextDesiredPosition();
+      }
+  
+      for(int i = 0; i < tagent.size(); i++){
+        tagent[i]->setX(tagent[i]->getDesiredX());
+        tagent[i]->setY(tagent[i]->getDesiredY());
+      }
+      break;
+
+    default:
+      break;
+  }
 }
 
 ////////////
