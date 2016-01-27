@@ -19,6 +19,7 @@ ParseScenario::ParseScenario(QString filename) : QObject(0)
   QFile file(filename);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
+    qDebug() << "File not found or readable: " << filename << endl;
     return;
   }
 
