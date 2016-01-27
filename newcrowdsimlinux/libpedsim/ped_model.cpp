@@ -5,6 +5,10 @@
 //
 // Adapted for Low Level Parallel Programming 2015
 //
+
+#include "pthread.h"
+#define NTHREADS 2
+
 #include "ped_model.h"
 #include "ped_waypoint.h"
 #include "cuda_dummy.h"
@@ -12,9 +16,6 @@
 #include <iostream>
 #include <stack>
 #include <algorithm>
-
-#include "pthread.h"
-#define NTHREADS 4
 
 void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
 {
@@ -29,7 +30,7 @@ void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
   }
 
   // This is the sequential implementation
-  implementation = SEQ;
+  implementation = PTHREAD;
 
   // Set up heatmap (relevant for Assignment 4)
   setupHeatmapSeq();
@@ -61,7 +62,7 @@ void Ped::Model::tick()
 {
   // EDIT HERE FOR ASSIGNMENT 1
   pthread_t pids[NTHREADS];
-  segment *segs;
+  segment segs[NTHREADS];
   std::vector<Ped::Tagent*> tagent = getAgents();
 
   switch(implementation){
@@ -80,31 +81,30 @@ void Ped::Model::tick()
       break;
 
     case PTHREAD:
-      segs = (segment *) calloc(sizeof(segment), NTHREADS);
 
       for(int i = 0; i < NTHREADS; i++){
         segs[i].start=i*tagent.size()/NTHREADS;
-        segs[i].end= ( (i-1) != NTHREADS) ? (i+1)*tagent.size()/NTHREADS : tagent.size();
+        segs[i].end= (i+1)*tagent.size()/NTHREADS;
         segs[i].tagent = tagent;
       }
+      segs[NTHREADS-1].end = tagent.size();
 
-      for(int i = 0; i < tagent.size(); i++){
-        pthread_create( &pids[i], NULL, &computepos, &segs[i]);
+      for(int i = 0; i < NTHREADS; i++){
+        pthread_create( &pids[i], NULL, &computepos, &(segs[i]));
       }
       
-      for(int i = 0; i < tagent.size(); i++){
+      for(int i = 0; i < NTHREADS; i++){
         pthread_join( pids[i], NULL);
       }
 
-      for(int i = 0; i < tagent.size(); i++){
-        pthread_create( &pids[i], NULL, &movepos, &segs[i]);
+      for(int i = 0; i < NTHREADS; i++){
+        pthread_create( &pids[i], NULL, &movepos, &(segs[i]));
       }
       
-      for(int i = 0; i < tagent.size(); i++){
+      for(int i = 0; i < NTHREADS; i++){
         pthread_join( pids[i], NULL);
       }
 
-      free(segs);
       break;
 
     case SEQ:
