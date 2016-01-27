@@ -4,6 +4,7 @@ DEMOAPP_DIR = demo
 DEMOAPP = $(DEMOAPP_DIR)/demo
 SYMLINK = $(DEMOAPP_DIR)/libpedsim.so
 CUSTOMLIBS=
+QMAKE=qmake-qt4
 
 CC=gcc
 CXX=g++
@@ -31,7 +32,7 @@ endif
 
 # Are we going to compile CUDA code?
 I_DONT_EVEN_HAVE_CUDA=
-I_WANT_TO_LINK_CUDA=-lcudart
+I_WANT_TO_LINK_CUDA=-lcudart -L/usr/local/cuda-6.5/lib
 ifneq ($(shell which nvcc), )
 	CUSTOMLIBS+=$(I_WANT_TO_LINK_CUDA)
 else
@@ -52,7 +53,7 @@ $(DEMOAPP): $(LIBPEDSIM)
 $(DEMOAPP): export LD_RUN_PATH=$(PWD)/libpedsim
 
 $(DEMOAPP): $(MACAPP)
-	cd $(DEMOAPP_DIR); qmake "CUSTOMLIBS=$(CUSTOMLIBS)" $(QMAKE_MAC)
+	cd $(DEMOAPP_DIR); $(QMAKE) "CUSTOMLIBS=$(CUSTOMLIBS)" $(QMAKE_MAC)
 	make -C $(DEMOAPP_DIR)
 	cd $(OLDPWD)
 
