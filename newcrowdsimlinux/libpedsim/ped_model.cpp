@@ -68,12 +68,12 @@ void Ped::Model::tick()
   switch(implementation){
     case OMP:
     
-      #pragma OMP Parallel
+      #pragma OMP Parallel for
       for(int i = 0; i < tagent.size(); i++){
         tagent[i]->computeNextDesiredPosition();
       }
 
-      #pragma OMP Parallel
+      #pragma OMP Parallel for
       for(int i = 0; i < tagent.size(); i++){
         tagent[i]->setX(tagent[i]->getDesiredX());
         tagent[i]->setY(tagent[i]->getDesiredY());
@@ -87,7 +87,9 @@ void Ped::Model::tick()
         segs[i].end= (i+1)*tagent.size()/NTHREADS;
         segs[i].tagent = tagent;
       }
-      segs[NTHREADS-1].end = tagent.size();
+      if(segs[NTHREADS-1].end != tagent.size()){
+	cerr << "(segs[NTHREADS-1].end != tagent.size())" << endl;
+      }
 
       for(int i = 0; i < NTHREADS; i++){
         pthread_create( &pids[i], NULL, &computepos, &(segs[i]));
