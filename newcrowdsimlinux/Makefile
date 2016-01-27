@@ -47,11 +47,14 @@ $(LIBPEDSIM) :
 	ln -fs ../$(LIBPEDSIM) $(SYMLINK)
 	ln -fs $(LIBPEDSIM) libpedsim.so
 
+$(DEMOAPP): $(LIBPEDSIM)
+
 $(DEMOAPP): export LD_RUN_PATH=$(PWD)/libpedsim
 
 $(DEMOAPP): $(MACAPP)
 	cd $(DEMOAPP_DIR); qmake "CUSTOMLIBS=$(CUSTOMLIBS)" $(QMAKE_MAC)
 	make -C $(DEMOAPP_DIR)
+	cd $(OLDPWD)
 
 $(MACAPP):
 	ln -fs ../$(MACAPP) $(DEMOAPP);
@@ -69,4 +72,7 @@ clean:
 	-rm -f $(DEMOAPP_DIR)/src/Makefile
 	-rm -f $(SYMLINK) $(MACOSLINK) $(MACAPP) $(DEMOAPP) libpedsim.so
 
-.PHONY: $(LIBPEDSIM) $(DEMOAPP)  alltests clean
+run: $(DEMOAPP)
+	$(DEMOAPP) $(DEMOAPP_DIR)/scenario.xml
+
+.PHONY: $(LIBPEDSIM) $(DEMOAPP)  alltests clean run
