@@ -43,7 +43,7 @@ all: $(LIBPEDSIM) $(DEMOAPP)
 
 include Makefile.test
 
-$(LIBPEDSIM) :
+$(LIBPEDSIM):
 	make -C $(LIBPEDSIM_DIR)
 	ln -fs ../$(LIBPEDSIM) $(SYMLINK)
 	ln -fs $(LIBPEDSIM) libpedsim.so
@@ -76,4 +76,7 @@ clean:
 run: $(DEMOAPP)
 	$(DEMOAPP) $(DEMOAPP_DIR)/scenario.xml
 
-.PHONY: $(LIBPEDSIM) $(DEMOAPP)  alltests clean run
+time: $(DEMOAPP)
+	$(DEMOAPP) --timing-mode $(DEMOAPP_DIR)/scenario.xml
+
+.PHONY: $(LIBPEDSIM) $(DEMOAPP)  alltests clean run time
