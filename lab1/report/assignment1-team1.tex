@@ -1,10 +1,52 @@
 \documentclass[a4paper,11pt]{article}
-%\usepackage[T1]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage{fullpage}
 \usepackage{listings}
 \usepackage[hidelinks]{hyperref}
 %\usepackage{latex/c/style}
 \usepackage{pdfpages}
+% According to the 
+% Line plot example using external data fiels.
+%
+% Author: Claudio Favi
+\usepackage{tikz}
+\usetikzlibrary{plotmarks}
+% The data files, written on the first run.
+\begin{filecontents}{pthreads.data}
+#Threads	Time [s]
+1	2.566
+2	1.607
+3	1.657
+4	2.130
+5	2.458
+6	2.700
+8	3.090
+16	3.880
+\end{filecontents}
+
+\begin{filecontents}{omp.data}
+#Threads	Time [ms]
+1	1.980
+2	0.950
+3	0.977
+4	0.859
+5	1.372
+6	1.313
+8	1.555
+16	1.946
+\end{filecontents}
+
+\begin{filecontents}{seq.data}
+#Threads	Time [ms]
+1	1.808
+1	1.808
+1	1.808
+1	1.808
+1	1.808
+1	1.808
+1	1.808
+1	1.808
+\end{filecontents}
 
 % 1.2.c
 \renewcommand{\thesubsubsection}{\thesubsection.\alph{subsubsection}}
@@ -30,21 +72,58 @@
 \subsection{}
 
 \subsection{}
-According to the 
 
-\begin{table}
-	\begin{tabular}{llll}
-Threads & pthread & openmp & seq \\
-1 & 967 & N/A & 780 \\
-2 & 749 & N/A & N/A \\
-3 & 936 & N/A & N/A \\
-4 & 1232 & 265 & N/A \\
-5 & 1887 & N/A & N/A \\
-6 & 2091 & N/A & N/A \\
-7 & 2200 & N/A & N/A \\
-8 & 2684 & N/A & N/A
-	\end{tabular}
-\end{table}
+
+\begin{tikzpicture}[y=1.5cm, x=0.7cm,font=\sffamily]
+ 	%axis
+	\draw (0,0) -- coordinate (x axis mid) (16,0);
+    	\draw (0,0) -- coordinate (y axis mid) (0,5);
+    	%ticks
+    	\foreach \x in {0,...,16}
+     		\draw (\x,1pt) -- (\x,-3pt)
+			node[anchor=north] {\x};
+    	\foreach \y in {0,0.5,...,5}
+     		\draw (1pt,\y) -- (-3pt,\y) 
+     			node[anchor=east] {\y}; 
+	%labels      
+	\node[below=0.8cm] at (x axis mid) {Threads};
+	\node[rotate=90, above=0.8cm] at (y axis mid) {Time [s]};
+
+	%plots
+	\draw plot[mark=*, mark options={fill=red}] 
+		file {pthreads.data};
+	\draw plot[mark=triangle*, mark options={fill=blue} ] 
+		file {omp.data};
+	\draw plot[mark=square*, mark options={fill=green}]
+		file {seq.data};
+
+	%legend
+	\begin{scope}[shift={(4,4)}] 
+	\draw (0,0) -- 
+		plot[red,mark=*, mark options={fill=red}] (0.25,0) -- (0.5,0) 
+		node[right]{pthreads};
+	\draw[yshift=\baselineskip] (0,0) -- 
+		plot[blue,mark=triangle*, mark options={fill=blue}] (0.25,0) -- (0.5,0)
+		node[right]{omp};
+	\draw[yshift=2\baselineskip] (0,0) -- 
+		plot[green,mark=square*, mark options={fill=green}] (0.25,0) -- (0.5,0)
+		node[right]{seq};
+	\end{scope}
+\end{tikzpicture}
+
+%\begin{table}
+%	\begin{tabular}{llll}
+%Threads & pthread & openmp & seq \\
+%1 & 967 & N/A & 780 \\
+%2 & 749 & N/A & N/A \\
+%3 & 936 & N/A & N/A \\
+%4 & 1232 & 265 & N/A \\
+%5 & 1887 & N/A & N/A \\
+%6 & 2091 & N/A & N/A \\
+%7 & 2200 & N/A & N/A \\
+%8 & 2684 & N/A & N/A
+%	\end{tabular}
+%\end{table}
 
 \subsection{Question 4}
 

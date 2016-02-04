@@ -6,8 +6,9 @@
 // Adapted for Low Level Parallel Programming 2015
 //
 
+#include "omp.h"
 #include "pthread.h"
-#define NTHREADS 2
+#define NTHREADS 16
 
 #include "ped_model.h"
 #include "ped_waypoint.h"
@@ -30,7 +31,7 @@ void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
   }
 
   // This is the sequential implementation
-  implementation = PTHREAD;
+  implementation = OMP;
 
   // Set up heatmap (relevant for Assignment 4)
   setupHeatmapSeq();
@@ -67,13 +68,13 @@ void Ped::Model::tick()
 
   switch(implementation){
     case OMP:
-    
-      #pragma OMP Parallel for
+      omp_set_num_threads(NTHREADS);
+      #pragma omp parallel for
       for(int i = 0; i < tagent.size(); i++){
         tagent[i]->computeNextDesiredPosition();
       }
 
-      #pragma OMP Parallel for
+      #pragma omp parallel for
       for(int i = 0; i < tagent.size(); i++){
         tagent[i]->setX(tagent[i]->getDesiredX());
         tagent[i]->setY(tagent[i]->getDesiredY());
