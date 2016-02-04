@@ -64,15 +64,28 @@
 \begin{document}
 
 \maketitle
+\section{Running}
+To compile and run: Press F5 once this project is opened in Visual Studio 2013.
+Versions: Inside file ped\_model.cpp (path ../libpedsim/src/), at line number 38,
+choose between SEQ, OMP or PTHREAD for sequential, OpenMP or Pthreads
+implementations respectively.
+Machine used: please refer to 1.2 Question section question C.
 
 \section{Questions}
-
-\subsection{}
-
-\subsection{}
-
-\subsection{}
-
+\subsection{A. What kind of parallelism is exposed in the identified method?}
+Data parallelism.
+\subsection{B. How is the workload distributed across the threads?}
+Evenly, as the threads get equal number of agents.
+\subsection{C. Which number of thread gives you the best results? Why?}
+Two thread, because two real core on the test setup (windows lab room 2315:8).
+\subsection{E. How does your Pthreads implementation differ from the chosen OpenMP pragma?}
+More code was written with Pthread than OpenMP because OpenMP (parallel for)
+performs the thread allocation and work distribution automatically, in comparison to
+Pthread.
+\subsection{D. Which version (OpenMP, Pthreads) gives you better results? Why?}
+OpenMP was fastest in the benchmark.
+OpenMP have a lot of optimizations, often tailored for the platform it is running on.
+Beneath is a plot of comparison between three implementations.
 
 \begin{tikzpicture}[y=1.5cm, x=0.7cm,font=\sffamily]
  	%axis
@@ -125,9 +138,8 @@
 %	\end{tabular}
 %\end{table}
 
-\subsection{Question 4}
-
-\subsection{Question 5}
+\subsection{Workload}
+We each worked quite equally on the assignment.
 
 \clearpage
 
