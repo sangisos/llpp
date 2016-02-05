@@ -33,7 +33,7 @@ void Ped::Model::setup(std::vector<Ped::Tagent*> agentsInScenario)
   }
 
   // This is the sequential implementation
-  implementation = OMP;
+  implementation = VECTOR;//OMP;
 
   // Set up heatmap (relevant for Assignment 4)
   setupHeatmapSeq();
@@ -168,21 +168,20 @@ for(int i=0; i < tagent_size; i+=1){
 void Ped::Model::tick()
 {
   std::vector<Ped::Tagent*> tagent = getAgents();
-  if(True && 1!=1){
-    thisIsAFunction();
-    #pragma omp parallel for
-    for(int i = 0; i < tagent.size(); i++){
-    tagent[i]->setX(tagent[i]->getDesiredX());
-    tagent[i]->setY(tagent[i]->getDesiredY());
-  }
-    return;
-  }
-  // EDIT HERE FOR ASSIGNMENT 1
+// EDIT HERE FOR ASSIGNMENT 1
   pthread_t pids[NTHREADS];
   segment segs[NTHREADS];
 
+ switch(implementation){
+    case VECTOR:
+      thisIsAFunction();
+#pragma omp parallel for
+      for(int i = 0; i < tagent.size(); i++){
+	tagent[i]->setX(tagent[i]->getDesiredX());
+	tagent[i]->setY(tagent[i]->getDesiredY());
+      }
+	break;
 
-  switch(implementation){
     case OMP:
       omp_set_num_threads(NTHREADS);
       #pragma omp parallel for
@@ -198,7 +197,6 @@ void Ped::Model::tick()
       break;
 
     case PTHREAD:
-
       for(int i = 0; i < NTHREADS; i++){
         segs[i].start=i*tagent.size()/NTHREADS;
         segs[i].end= (i+1)*tagent.size()/NTHREADS;
