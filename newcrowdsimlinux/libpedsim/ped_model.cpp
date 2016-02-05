@@ -9,7 +9,7 @@
 #include "omp.h"
 #include "pthread.h"
 #define NTHREADS 16
-
+#define True false
 #include "ped_model.h"
 #include "ped_waypoint.h"
 #include "cuda_dummy.h"
@@ -76,9 +76,9 @@ std::vector<Ped::Tagent*> tagent = getAgents();
   
   #pragma omp parallel for 
   for(int i=0; i < tagent_size; i++){
-    destinationGetX[i] = tagent[i]->destination == NULL ? 0 : tagent[i]->destination->getx();
-    destinationGetY[i] = tagent[i]->destination == NULL ? 0 : tagent[i]->destination->gety();
-    destinationGetR[i] = tagent[i]->destination == NULL ? 0 : tagent[i]->destination->getr();
+    destinationGetX[i] = tagent[i]->destination == NULL ? 1 : tagent[i]->destination->getx();
+    destinationGetY[i] = tagent[i]->destination == NULL ? 1 : tagent[i]->destination->gety();
+    destinationGetR[i] = tagent[i]->destination == NULL ? 1 : tagent[i]->destination->getr();
     x[i] = tagent[i]->getX();
     y[i] = tagent[i]->getY();
   }
@@ -157,9 +157,8 @@ for(int i=0; i < vector_size; i+=4){
  
 #pragma omp parallel for 
 for(int i=0; i < tagent_size; i+=1){
-  if (tagent[i]->destination != NULL) {
-    tagent[i]->desiredPositionX = round(notRoundedDesiredPositionXNeedToBeRoundedBeforeSettingDesiredPositionX[i]);
-    tagent[i]->desiredPositionY = round(notRoundedDesiredPositionYNeedToBeRoundedBeforeSettingDesiredPositionY[i]);
+  if (tagent[i]->destination != NULL ) {
+    tagent[i]->setDesiredPosition(round(notRoundedDesiredPositionXNeedToBeRoundedBeforeSettingDesiredPositionX[i]),round(notRoundedDesiredPositionYNeedToBeRoundedBeforeSettingDesiredPositionY[i]));
   }
  }
   return;
@@ -169,13 +168,15 @@ for(int i=0; i < tagent_size; i+=1){
 void Ped::Model::tick()
 {
   std::vector<Ped::Tagent*> tagent = getAgents();
-  thisIsAFunction();
-      #pragma omp parallel for
-      for(int i = 0; i < tagent.size(); i++){
-        tagent[i]->setX(tagent[i]->getDesiredX());
-        tagent[i]->setY(tagent[i]->getDesiredY());
-      }
-      return;
+  if(True && 1!=1){
+    thisIsAFunction();
+    #pragma omp parallel for
+    for(int i = 0; i < tagent.size(); i++){
+    tagent[i]->setX(tagent[i]->getDesiredX());
+    tagent[i]->setY(tagent[i]->getDesiredY());
+  }
+    return;
+  }
   // EDIT HERE FOR ASSIGNMENT 1
   pthread_t pids[NTHREADS];
   segment segs[NTHREADS];
