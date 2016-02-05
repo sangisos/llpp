@@ -27,7 +27,7 @@ void PedSimulation::runSimulationWithQt(int maxNumberOfStepsToSimulate)
   maxSimulationSteps = maxNumberOfStepsToSimulate;
   auto movetimer = new QTimer(); 
   QObject::connect(movetimer, SIGNAL(timeout()), this, SLOT(simulateOneStep()));
-  movetimer->start();
+  movetimer->start(1000);
 }
 
 void PedSimulation::runSimulationWithoutQt(int maxNumberOfStepsToSimulate)

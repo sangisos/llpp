@@ -64,7 +64,7 @@ void *movepos(void *ptr){
 
 void Ped::Model::thisIsAFunction(){
   /***************Add SIMD things here***************/
-std::vector<Ped::Tagent*> tagent = getAgents();
+  std::vector<Ped::Tagent*> tagent = getAgents();
   unsigned int tagent_size= tagent.size();
   
   unsigned int vector_size = tagent_size + 4 - (tagent_size % 4);
@@ -75,12 +75,16 @@ std::vector<Ped::Tagent*> tagent = getAgents();
   float destinationGetR[vector_size] __attribute__((aligned (16)));
   
   #pragma omp parallel for 
+  for(int i=0; i < vector_size; i++){
+    destinationGetX[i] = tagent[i%tagent_size]->destination == NULL ? 1 : tagent[i%tagent_size]->destination->getx();
+    destinationGetY[i] = tagent[i%tagent_size]->destination == NULL ? 1 : tagent[i%tagent_size]->destination->gety();
+    destinationGetR[i] = tagent[i%tagent_size]->destination == NULL ? 1 : tagent[i%tagent_size]->destination->getr();
+    x[i] = tagent[i%tagent_size]->getX();
+    y[i] = tagent[i%tagent_size]->getY();
+  }
+  
   for(int i=0; i < tagent_size; i++){
-    destinationGetX[i] = tagent[i]->destination == NULL ? 1 : tagent[i]->destination->getx();
-    destinationGetY[i] = tagent[i]->destination == NULL ? 1 : tagent[i]->destination->gety();
-    destinationGetR[i] = tagent[i]->destination == NULL ? 1 : tagent[i]->destination->getr();
-    x[i] = tagent[i]->getX();
-    y[i] = tagent[i]->getY();
+    cout<<"X: "<<x[i]<<endl;
   }
   
   //float diffX[vector_size]__attribute__((aligned (16)));
@@ -115,9 +119,15 @@ std::vector<Ped::Tagent*> tagent = getAgents();
   }
   
   
-  #pragma omp parallel for 
+  //#pragma omp parallel for 
   for(int i=0; i < tagent_size; i+=1){
-    if (((agentReachedDestination[i] && tagent[i]->destination != NULL) || tagent[i]->destination == NULL) && !tagent[i]->waypoints.empty()) {
+  if(agentReachedDestination[i]<0){
+  cout << "true" << endl; }
+  else{
+  //  cout << agentReachedDestination[i] << endl;
+  //cout << "false" << endl; 
+}
+  if (((fabs(agentReachedDestination[i])<0.001 && tagent[i]->destination != NULL) || tagent[i]->destination == NULL) && !tagent[i]->waypoints.empty()) {
     // Case 1: agent has reached destination (or has no current destination);
     // get next destination if available
     tagent[i]->destination = tagent[i]->waypoints.front(); tagent[i]->waypoints.pop_front(); // pop
@@ -152,7 +162,8 @@ for(int i=0; i < vector_size; i+=4){
   __m128 divYLength = _mm_div_ps(diffY, length);
   __m128 resultDesiredX = _mm_add_ps(divXLength, pSrcX); 
   __m128 resultDesiredY = _mm_add_ps(divYLength, pSrcY); 
-  _mm_store_ps(notRoundedDesiredPositionXNeedToBeRoundedBeforeSettingDesiredPositionX,resultDesiredX);       _mm_store_ps(notRoundedDesiredPositionYNeedToBeRoundedBeforeSettingDesiredPositionY,resultDesiredY);
+  _mm_store_ps(notRoundedDesiredPositionXNeedToBeRoundedBeforeSettingDesiredPositionX,resultDesiredX);       
+  _mm_store_ps(notRoundedDesiredPositionYNeedToBeRoundedBeforeSettingDesiredPositionY,resultDesiredY);
  }
  
 #pragma omp parallel for 
@@ -161,7 +172,8 @@ for(int i=0; i < tagent_size; i+=1){
     tagent[i]->setDesiredPosition(round(notRoundedDesiredPositionXNeedToBeRoundedBeforeSettingDesiredPositionX[i]),round(notRoundedDesiredPositionYNeedToBeRoundedBeforeSettingDesiredPositionY[i]));
   }
  }
-  return;
+ 
+ return;
 }
 
 
@@ -175,11 +187,12 @@ void Ped::Model::tick()
  switch(implementation){
     case VECTOR:
       thisIsAFunction();
-#pragma omp parallel for
+      //#pragma omp parallel for
       for(int i = 0; i < tagent.size(); i++){
+  cout << "(" << tagent[i]->getDesiredX() << ", " << tagent[i]->getDesiredY() << ")\n";
 	tagent[i]->setX(tagent[i]->getDesiredX());
 	tagent[i]->setY(tagent[i]->getDesiredY());
-      }
+}
 	break;
 
     case OMP:
@@ -238,6 +251,7 @@ void Ped::Model::tick()
     default:
       break;
   }
+
 }
 
 ////////////
