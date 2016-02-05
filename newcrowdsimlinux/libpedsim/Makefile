@@ -1,13 +1,17 @@
+SSE = -msse2
+
 # Set os specific variables
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	CXX_ = g++
-	LDFLAGS_ = -lpthread -msse2 -fopenmp -shared -Wl,-soname,libpedsim.so
+	LDFLAGS_ = -lpthread $(SSE) -fopenmp -shared -Wl,-soname,libpedsim.so
 endif
 ifeq ($(UNAME_S),Darwin)
 	CXX_ = g++-5
 	LDFLAGS_ = -lpthread -fopenmp -shared -Wl,-install_name,libpedsim.so
 endif
+
+
 
 NVCC = nvcc
 SOURCES_CXX = ped_waypoint.cpp ped_agent.cpp ped_model.cpp ped_tree.cpp heatmap_seq.cpp
@@ -16,7 +20,7 @@ OBJECTS_CXX = $(SOURCES_CXX:.cpp=.cxx.o)
 SOURCES_CU = tick_cuda.cu
 OBJECTS_CU = $(SOURCES_CU:.cu=.cu.o)
 
-CXXFLAGS_ = -lpthread -fopenmp -msse2 -g -O3 -fno-inline -fPIC
+CXXFLAGS_ = -lpthread -fopenmp $(SSE) -g -O3 -fno-inline -fPIC
 
 
 # Workaround to make project compile on non-cuda capable machines.
