@@ -3,7 +3,7 @@
 // Copyright (c) 2003 - 2014 by Christian Gloor
 //
 //
-// Adapted for Low Level Parallel Programming 2015
+// Adapted for Low Low High Low Level Parallel Programming 2015
 //
 #include "ped_agent.h"
 #include "ped_waypoint.h"
@@ -58,8 +58,7 @@ Ped::Twaypoint* Ped::Tagent::getNextDestination() {
   if ((agentReachedDestination || destination == NULL) && !waypoints.empty()) {
     // Case 1: agent has reached destination (or has no current destination);
     // get next destination if available
-      nextDestination = waypoints.front();
-      waypoints.pop_front();
+    nextDestination = waypoints.front(); waypoints.pop_front(); // pop
   }
   else {
     // Case 2: agent has not yet reached destination, continue to move towards

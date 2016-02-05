@@ -13,6 +13,7 @@
 #define _ped_model_h_
 #include <vector>
 #include <map>
+#include <deque>
 
 #include "ped_tree.h"
 #include "ped_agent.h"
@@ -54,7 +55,8 @@ namespace Ped{
     int getHeatmapSize() const;
     
   private:
-
+    //this is a function
+    void thisIsAFunction();
     // Denotes which implementation (sequential, parallel implementations..)
     // should be used for calculating the desired positions of
     // agents (Assignment 1)

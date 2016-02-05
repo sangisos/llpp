@@ -47,6 +47,11 @@ namespace Ped {
     // to the current destination
     void computeNextDesiredPosition();
 
+    void setDesiredPosition(int x,int y){setDesiredPositionX(x);setDesiredPositionY(y);}
+    void setDesiredPositionX(int x){desiredPositionX=x;}
+    void setDesiredPositionY(int y){desiredPositionY=y;}
+
+
     // Position of agent defined by x and y
     int getX() const { return x; };
     int getY() const { return y; };
@@ -54,6 +59,20 @@ namespace Ped {
     // Adds a new waypoint to reach for this agent
     void addWaypoint(Twaypoint* wp);
     
+
+
+    // The current destination (may require several steps to reach)
+    Twaypoint* destination;
+
+    // The queue of all destinations that this agent still has to visit
+    deque<Twaypoint*> waypoints;
+
+// The agent's desired next position
+    int desiredPositionX;
+    int desiredPositionY;
+
+
+
   private:
     Tagent() {};
 
@@ -61,19 +80,11 @@ namespace Ped {
     int x;
     int y;
 
-    // The agent's desired next position
-    int desiredPositionX;
-    int desiredPositionY;
-
-    // The current destination (may require several steps to reach)
-    Twaypoint* destination;
-
+    
     // The last destination
     Twaypoint* lastDestination;
 
-    // The queue of all destinations that this agent still has to visit
-    deque<Twaypoint*> waypoints;
-
+    
     // Internal init function 
     void init(int posX, int posY);
 
